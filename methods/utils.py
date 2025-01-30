@@ -24,13 +24,11 @@ def precision_and_recall(cross_val):
     precision_scores = cross_val[7]
     recall_scores = cross_val[8]
 
-    # Calculating averages
     avg_precision_0 = np.mean([score[0] for score in precision_scores])
     avg_precision_1 = np.mean([score[1] for score in precision_scores])
     avg_recall_0 = np.mean([score[0] for score in recall_scores])
     avg_recall_1 = np.mean([score[1] for score in recall_scores])
 
-    # Print results
     print(f'AVG_PRECISION_0: {avg_precision_0:.2f}')
     print(f'AVG_PRECISION_1: {avg_precision_1:.2f}')
     print(f'AVG_RECALL_0: {avg_recall_0:.2f}')
@@ -43,7 +41,6 @@ def roc_curve_plot(cross_val):
     y_test = cross_val[3]
     y_pred = cross_val[2]
 
-    # ROC curve
     fpr, tpr, thresholds = roc_curve(y_test, y_pred)
     auc = roc_auc_score(y_test, y_pred)
     plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc:.2f})')
@@ -135,7 +132,6 @@ def histograms(data):
 def iter_experiment_results():
     n_iters_experiment = np.load('number_of_iterations_results.npz')
 
-    # print number of iters experiment results
     n_iters_keys = n_iters_experiment
     for key in n_iters_keys:
         print(f"Results for {key}: %.3f" % n_iters_experiment[key])
@@ -160,11 +156,9 @@ def feature_reduction_and_scatter_plot(cross_val, lr, resolution=0.02):
     y = cross_val[6]
     x_test = cross_val[4]
 
-    # apply dimensionality reduction using t-SNE
     tsne = TSNE(n_components=2, random_state=42)
     X_tsne = tsne.fit_transform(x_train)
 
-    # set up marker generator and color map
     markers = ('s', 'o')
     colors = ('blue', 'red')
 
@@ -184,7 +178,6 @@ def feature_reduction_and_scatter_plot(cross_val, lr, resolution=0.02):
     X_test_pca = pca.transform(x_test)
     lr.fit(X, y)
 
-    # setup marker generator and color map
     markers = ('s', 'x', 'o', '^', 'v')
     colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
     cmap = ListedColormap(colors[:len(np.unique(y))])
@@ -197,7 +190,7 @@ def feature_reduction_and_scatter_plot(cross_val, lr, resolution=0.02):
                     c=[cmap(idx)],
                     edgecolor='black',
                     marker=markers[idx],
-                    label=cl)  # plot decision regions for training set
+                    label=cl)
 
     plt.xlabel('PC 1')
     plt.ylabel('PC 2')

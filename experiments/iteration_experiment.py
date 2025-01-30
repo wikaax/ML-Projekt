@@ -1,29 +1,31 @@
 import numpy as np
 from sklearn.model_selection import cross_val_score
 
-from methods.cross_validation_method import perform_cross_val
-from methods.logistic_regression_method import LogisticRegression
 
-
-def find_best_n_iter(X, rkf, y):
-    # list of n_iters to find the best
+def find_best_n_iter(X_selected_features, rkf, y, classifiers):
     n_iters_list = [100, 500, 1000, 5000]
 
-    # storing results of n_iters experiment
     results = {}
-    best_n_iter = None
-    best_accuracy = 0
 
-    for n_iters in n_iters_list:
-        # create clf with current value of n_iters
-        lr = LogisticRegression(lr=0.001, n_iters=n_iters)
-        acc_scores = perform_cross_val({'LR': lr}, rkf, X, y)[0]
-        results[n_iters] = acc_scores.mean()
+    for name, X_selected in X_selected_features.items():
+        print(f"Finding best n_iter for {name}...")
+        results[name] = {}
 
-        if results[n_iters] > best_accuracy:
-            best_n_iter = n_iters
-            best_accuracy = results[n_iters]
+        for n_iters in n_iters_list:
+            clf = classifiers[name]
+            if hasattr(clf, 'max_iter'):
+                clf.set_params(max_iter=n_iters)
 
-    # save results do file
-    np.savez('number_of_iterations_results.npz', **{str(k): v for k, v in results.items()})
-    return best_n_iter
+            acc_scores = cross_val_score(clf, X_selected, y, cv=rkf, scoring='accuracy')
+            results[name][n_iters] = acc_scores.mean()
+
+    np.savez('number_of_iterations_results.npz',
+             **{name: {str(k): v for k, v in iter_results.items()} for name, iter_results in results.items()})
+
+    print("Results for different number of iterations:")
+    for model, iter_results in results.items():
+        print(f"  {model}:")
+        for n_iter, acc in iter_results.items():
+            print(f"    {n_iter} iterations: {acc:.4f} accuracy")
+
+    return results

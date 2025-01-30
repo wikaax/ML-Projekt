@@ -4,6 +4,7 @@ from scipy.stats import ttest_rel
 
 def t_test():
     cross_validation = np.load('cross_validation_scores.npy')
+    print(cross_validation)
     alpha = 0.5
     X = cross_validation.reshape(-1, 5)
     n_classifiers = X.shape[1]
